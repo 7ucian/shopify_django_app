@@ -22,11 +22,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Make this unique and store it as an environment variable. 
 # Do not share it with anyone or commit it to version control.
 SECRET_KEY = os.environ.get('DJANGO_SECRET')
+SHOPIFY_API_VERSION = os.environ.get('SHOPIFY_API_VERSION')
+
+LOGIN_URL = '/shopify/login/'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    'man-needed-multiply.ngrok-free.app'
+                ]
 
 # Application definition
 
@@ -39,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'shopify_app.apps.ShopifyAppConfig',
     'home.apps.HomeConfig',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +59,23 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'shopify_app.middleware.LoginProtection',
 ]
+# Allow embedding inside an iframe
+X_FRAME_OPTIONS = "ALLOWALL"
+SECURE_BROWSER_XSS_FILTER = False
+
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+# ✅ Required for Shopify Embedded Apps
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SECURE = True
+
+
+
+# Ensure your app is loaded inside an iframe (recommended for Shopify apps)
+CSRF_TRUSTED_ORIGINS = [
+    "https://bcb7-2a02-2f04-930f-5300-6ca4-d764-7f0d-8d8c.ngrok-free.app"
+    ]
 
 ROOT_URLCONF = 'shopify_django_app.urls'
 

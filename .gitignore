@@ -82,6 +82,8 @@ target/
 *.log
 *.pot
 *.pyc
+*.crt 
+*.key
 __pycache__/
 local_settings.py
 

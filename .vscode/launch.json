@@ -15,6 +15,22 @@
             "django": true,
             "autoStartBrowser": false,
             "program": "${workspaceFolder}/manage.py"
+        },
+        {
+            "name": "Python Debugger: Django SSL",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "runserver_plus",
+                "--cert-file",
+                "${workspaceFolder}/cert.pem",
+                "--key-file",
+                "${workspaceFolder}/key.pem"
+            ],
+            "django": true,
+            "autoStartBrowser": false,
+            "program": "${workspaceFolder}/manage.py"
         }
+
     ]
 }
