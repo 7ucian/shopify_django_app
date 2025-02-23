@@ -14,7 +14,7 @@ class ConfigurationError(BaseException):
     pass
 
 class LoginProtection(MiddlewareMixin):
-    async_mode = False  # ✅ Fix for Django middleware compatibility
+    async_mode = False  # Fix for Django middleware compatibility
 
     def __init__(self, get_response):
         super().__init__(get_response)
@@ -27,7 +27,7 @@ class LoginProtection(MiddlewareMixin):
     def process_request(self, request):
         """Ensure user is authenticated using Shopify session token (not cookies)."""
 
-        # ✅ Step 1: If already authenticated, allow request
+        # Step 1: If already authenticated, allow request
         if hasattr(request, "session") and "shopify" in request.session:
             session_data = request.session["shopify"]
             if "access_token" in session_data:
@@ -36,13 +36,13 @@ class LoginProtection(MiddlewareMixin):
                 shopify_session = shopify.Session(shop_url, api_version)
                 shopify_session.token = session_data["access_token"]
                 shopify.ShopifyResource.activate_session(shopify_session)
-                return  # ✅ Allow request to proceed
+                return  # Allow request to proceed
 
-        # ✅ Step 2: If coming from `/shopify/finalize/`, do NOT redirect back to authenticate
+        # Step 2: If coming from `/shopify/finalize/`, do NOT redirect back to authenticate
         if request.path.startswith("/shopify/finalize/"):
             return  # Stop middleware from forcing another redirect
 
-        # ✅ Step 3: If no session, redirect to authentication
+        # Step 3: If no session, redirect to authentication
         shop = request.GET.get("shop")
         if shop and not request.path.startswith("/shopify/authenticate"):
             return redirect(f"/shopify/authenticate/?shop={shop}")

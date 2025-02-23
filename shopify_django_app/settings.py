@@ -74,8 +74,8 @@ CSRF_COOKIE_SECURE = True
 
 # Ensure your app is loaded inside an iframe (recommended for Shopify apps)
 CSRF_TRUSTED_ORIGINS = [
-    "https://bcb7-2a02-2f04-930f-5300-6ca4-d764-7f0d-8d8c.ngrok-free.app"
-    ]
+    'https://*.ngrok-free.app',  # Allows any ngrok-free.app subdomain
+]
 
 ROOT_URLCONF = 'shopify_django_app.urls'
 

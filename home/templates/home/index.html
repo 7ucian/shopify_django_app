@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_authenticated.html" %}
 {% block content %}
   <div id="orders">
     <h2>Your recent orders</h2>
@@ -42,4 +42,10 @@
   {% empty %}
     <em class="note">There are no products in your store.</em>
   {% endfor %}
+
+  Upload documents:
+  <div class="mt-3">
+    <a href="{% url 'upload_document' %}" class="btn btn-primary">Upload Documents</a>
+  </div>
+  
 {% endblock %}

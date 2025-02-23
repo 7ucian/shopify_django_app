@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script> -->
+ 
+  <title>{% block title %}Shopify Application{% endblock %}</title>
+  <link href="/static/stylesheets/application.css" media="screen" rel="stylesheet" type="text/css" />
+  
+ 
+
+
+</head>
+<body>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script src="https://unpkg.com/@shopify/app-bridge@3"></script>
+  <script src="https://unpkg.com/@shopify/app-bridge-utils@3"></script>
+  <script src="https://unpkg.com/@shopify/app-bridge@3.7.10/actions/index.js"></script>
+  <script>
+      $(document).ready(function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const host = urlParams.get('host');
+          AppBridge = window["app-bridge"];
+          AppBridgeUtils = window["app-bridge-utils"];
+          actions = window["app-bridge"].actions;
+  
+          let createApp = AppBridge.default;
+          app = createApp({
+              apiKey: "{{ SHOPIFY_API_KEY }}",
+              host: host,
+              forceRedirect: true
+          });
+          console.log("App Bridge initialized successfully", app);
+          
+        // Create navigation links
+        const itemsLink = actions.AppLink.create(app, {
+            label: 'Upload Documents',
+            destination: '/upload',
+        });
+
+        const settingsLink = actions.AppLink.create(app, {
+            label: 'Settings',
+            destination: '/',
+        });
+
+        // Create navigation menu
+        const navigationMenu = actions.NavigationMenu.create(app, {
+            items: [itemsLink, settingsLink],
+            // Optionally set active link
+            active: window.location.pathname === '/settings' ? settingsLink : itemsLink
+        });
+
+      });
+  </script>
+
+<!-- <script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const host = urlParams.get('host');
+                const shop = urlParams.get('shop');
+                
+                // Set config
+                window.shopify.config = {
+                    apiKey: "{{ SHOPIFY_API_KEY }}",
+                    host: host,
+                    forceRedirect: true
+                };
+
+                // Wait for app to be ready
+                window.shopify.ready.then(() => {
+                    console.log("App Bridge initialized successfully");
+                    console.log("Object available:", window.shopify);
+
+                }).catch(error => {
+                    console.error("Error during app initialization:", error);
+                });
+
+            } catch (error) {
+                console.error("App Bridge initialization error:", error);
+            }
+        }); 
+</script> -->
+
+  <div id="header">
+    <h1><a href="{% url "root_path" %}">Shopify AI Boilerplate</a></h1>
+    <p id="login-link">
+      {% if current_shop %}
+          <span class="note">current shop</span> <a href="https://{{ current_shop.domain }}" class="shop_name">{{ current_shop.domain }}</a> <span class="note">|</span>
+          <a href="{% url "shopify_app_logout" %}">logout</a>
+      {% endif %}
+    </p>
+  </div>
+  <div id="container" class="clearfix">
+    <!-- Flash error & notice-->
+    {% if messages %}
+      {% for message in messages %}
+      <div{% if message.tags %} class="{{ message.tags }}-message"{% endif %}>{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    <!-- begin div.main-->
+    <div id="main">
+      {% block content %}{% endblock %}
+    </div>
+    <!-- end div.main -->
+  </div>
+
+  
+</body>
+</html>

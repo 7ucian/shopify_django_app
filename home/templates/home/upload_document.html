@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load formatter %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Upload Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Upload Document</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="document" class="form-label">Choose file</label>
+                    <input type="file" class="form-control" id="document" name="document" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <h4>Uploaded files</h4>
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                    <th>Upload date/time</th>
+                    <th>File name</th>
+                    <th>Items</th>
+                    <th>Directory</th>
+                    <th>Read file</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for directory in file_data %}
+                    {% for file in directory.files %}
+                        <tr>
+                            <td>{{ file.created }}</td>
+                            <td>{{ file.name }}</td>
+                            <td>{{ file.lines }}</td>
+                            <td>{{ directory.directory }}</td>
+                            <td><a href="#" onclick="showFileContent('{{ file.path|encodeb64 }}')"><i class="fa-solid fa-eye"></i></a></td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

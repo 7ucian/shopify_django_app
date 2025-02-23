@@ -70,7 +70,7 @@ coverage.xml
 # Translations
 *.mo
 *.pot
-
+documents/
 # Sphinx documentation
 docs/_build/
 
