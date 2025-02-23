@@ -23,6 +23,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Do not share it with anyone or commit it to version control.
 SECRET_KEY = os.environ.get('DJANGO_SECRET')
 SHOPIFY_API_VERSION = os.environ.get('SHOPIFY_API_VERSION')
+SHOPIFY_APP_NAME = os.environ.get('SHOPIFY_APP_NAME')
+SHOPIFY_API_KEY = os.environ.get('SHOPIFY_API_KEY')
+SHOPIFY_API_SECRET = os.environ.get('SHOPIFY_API_SECRET')
+SHOPIFY_API_SCOPE = os.environ.get('SHOPIFY_API_SCOPE')
+SHOPIFY_API_CALLBACK_URL = os.environ.get('SHOPIFY_API_CALLBACK_URL')
 
 LOGIN_URL = '/shopify/login/'
 

@@ -11,19 +11,21 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.sessions.backends.signed_cookies import SessionStore
-import jwt  # PyJWT to decode session tokens
+
+from home.urls import *
 
 def _new_session(shop_url):
     api_version = apps.get_app_config('shopify_app').SHOPIFY_API_VERSION
     return shopify.Session(shop_url, api_version)
 
-# Ask user for their ${shop}.myshopify.com address
+
 def login(request):
     # If the ${shop}.myshopify.com address is already provided in the URL,
     # just skip to authenticate
     if request.GET.get('shop'):
         return authenticate(request)
     return render(request, 'shopify_app/login.html', {})
+
 
 def authenticate(request):
     shop_url = request.GET.get('shop', request.POST.get('shop')).strip()
@@ -39,24 +41,58 @@ def authenticate(request):
 
 
 def finalize(request):
-    """Handles Shopify OAuth finalization and session setup"""
-    params = request.GET
-    shop_url = params.get("shop")
+    # """Handles Shopify OAuth finalization and session setup"""
+    # params = request.GET
+    # shop_url = params.get("shop")
 
-    # Step 1: Validate and retrieve access token
-    shopify_session = shopify.Session(shop_url, settings.SHOPIFY_API_VERSION)
-    token = shopify_session.request_token(params)
+    # # Step 1: Validate and retrieve access token
+    # shopify_session = shopify.Session(shop_url, settings.SHOPIFY_API_VERSION)
+    # token = shopify_session.request_token(params)
 
-    # Step 2: Store authentication details in session
-    request.session["shopify"] = {
-        "shop_url": shop_url,
-        "access_token": token
-    }
-    print("Session after finalize:", request.session.get("shopify"))
+    # # Step 2: Store authentication details in session
+    # request.session["shopify"] = {
+    #     "shop_url": shop_url,
+    #     "access_token": token
+    # }
+    # print("Session after finalize:", request.session.get("shopify"))
 
-    # Step 3: Redirect to home page inside Shopify (to prevent infinite loop)
-    return redirect("/")
+    # # Step 3: Redirect to home page inside Shopify (to prevent infinite loop)
+    # return redirect("/")
 
+    api_secret = apps.get_app_config('shopify_app').SHOPIFY_API_SECRET
+    params = request.GET.dict()
+
+    if request.session['shopify_oauth_state_param'] != params['state']:
+        messages.error(request, 'Anti-forgery state token does not match the initial request.')
+        return redirect(reverse(login))
+    else:
+        request.session.pop('shopify_oauth_state_param', None)
+
+    myhmac = params.pop('hmac')
+    line = '&'.join([
+        '%s=%s' % (key, value)
+        for key, value in sorted(params.items())
+    ])
+    h = hmac.new(api_secret.encode('utf-8'), line.encode('utf-8'), hashlib.sha256)
+    if hmac.compare_digest(h.hexdigest(), myhmac) == False:
+        messages.error(request, "Could not verify a secure login")
+        return redirect(reverse(login))
+
+    try:
+        shop_url = params['shop']
+        session = _new_session(shop_url)
+        request.session['shopify'] = {
+            "shop_url": shop_url,
+            "access_token": session.request_token(request.GET)
+        }
+    except Exception:
+        messages.error(request, "Could not log in to Shopify store.")
+        return redirect(reverse(login))
+    messages.info(request, "Logged in to shopify store.")
+    request.session.pop('return_to', None)
+    # return redirect(request.session.get('return_to', reverse('root_path')))
+    redirect_url = f"//{shop_url}/admin/apps/{settings.SHOPIFY_APP_NAME}/"
+    return redirect(redirect_url)
 
 
 def logout(request):

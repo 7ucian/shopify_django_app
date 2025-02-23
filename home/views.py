@@ -14,14 +14,25 @@ from .functions import generate_unique_filename, scan_documentation_files
 
 @shop_login_required
 def index(request):
-    shop_id = shopify.Shop.current()
-    print("Shop_ID:", shop_id)
-    api_key = os.environ.get('SHOPIFY_API_KEY')
+    referer = request.META.get("HTTP_REFERER", "")
+    origin = request.META.get("HTTP_ORIGIN", "")
 
-    products = shopify.Product.find(limit=3)
-    orders = shopify.Order.find(limit=3, order="created_at DESC")
+    if referer == 'https://admin.shopify.com/': 
 
-    return render(request, 'home/index.html', {'products': products, 'orders': orders, 'SHOPIFY_API_KEY': api_key})
+        shop_id = shopify.Shop.current()
+        print("Shop_ID:", shop_id)
+        api_key = os.environ.get('SHOPIFY_API_KEY')
+
+        products = shopify.Product.find(limit=3)
+        orders = shopify.Order.find(limit=3, order="created_at DESC")
+        context = {}
+        context['SHOPIFY_API_KEY'] = api_key
+        context['products'] = products
+        context['orders'] = orders
+    
+        return render(request, 'home/index.html', context)
+    else:
+        return render(request, 'shopify_app/login.html')
 
 
 @shop_login_required
